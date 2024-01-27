@@ -4,7 +4,7 @@ export const searchMessage = async message => {
 	const { data } = await supabase
 		.from('message')
 		.select('message')
-		.ilike('message', `%${message}%`)
+		.eq('message', message)
 	if (data) return data
 }
 

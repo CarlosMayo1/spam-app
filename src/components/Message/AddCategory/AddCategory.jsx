@@ -9,9 +9,11 @@ import { insertNewCategory, searchCategory } from '../../../utils/category'
 // components
 import SuccessAlert from '../../UI/Alert/SuccessAlert/SuccessAlert'
 import ErrorAlert from '../../UI/Alert/ErrorAlert/ErrorAlert'
+import LoadingSpinner from '../../UI/LoadingSpinner/LoadingSpinner'
 
 const AddCategoryModal = ({ isOpen, closeModal }) => {
 	const [alertType, setAlertType] = useState(null)
+	const [showLoading, setShowLoading] = useState(false)
 	const {
 		register,
 		handleSubmit,
@@ -21,34 +23,38 @@ const AddCategoryModal = ({ isOpen, closeModal }) => {
 	} = useForm()
 
 	const onSubmitHandleForm = handleSubmit(data => {
+		setShowLoading(true)
 		const newCategory = {
 			name: data.category,
 			status: 1,
 		}
 
 		// ⚠️validate in order to not repeat information
-		searchCategory(newCategory.name).then(response => {
-			if (response.length > 0) {
-				setError('category', {
-					type: 'custom',
-					message: 'This category has already been added!',
-				})
-				return
-			}
-
-			insertNewCategory(newCategory).then(response => {
-				if (response === undefined) {
-					setAlertType('success')
-				} else {
-					setAlertType('error')
+		searchCategory(newCategory.name)
+			.then(response => {
+				if (response.length > 0) {
+					setError('category', {
+						type: 'custom',
+						message: 'This category has already been added!',
+					})
+					return
 				}
-			})
 
-			setTimeout(() => {
-				reset()
-				closeModal()
-			}, 2000)
-		})
+				insertNewCategory(newCategory).then(response => {
+					if (response === undefined) {
+						setAlertType('success')
+						reset()
+					} else {
+						setAlertType('error')
+					}
+				})
+			})
+			.finally(() => {
+				setShowLoading(false)
+				setTimeout(() => {
+					setAlertType(null)
+				}, 2000)
+			})
 	})
 
 	const showAlert =
@@ -132,8 +138,9 @@ const AddCategoryModal = ({ isOpen, closeModal }) => {
 											<button
 												type='submit'
 												className='inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
+												disabled={showLoading}
 											>
-												Add
+												{showLoading ? <LoadingSpinner /> : 'Add'}
 											</button>
 										</div>
 									</form>

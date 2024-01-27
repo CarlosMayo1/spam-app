@@ -57,10 +57,10 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 					insertNewMessage(newMessage).then(response => {
 						if (response === undefined) {
 							setAlertType('success')
+							reset()
 						} else {
 							setAlertType('error')
 						}
-						reset()
 						console.log(response)
 					})
 				}

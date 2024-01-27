@@ -4,7 +4,7 @@ export const searchCategory = async category => {
 	const { data } = await supabase
 		.from('category')
 		.select('name')
-		.ilike('name', `%${category}%`)
+		.eq('name', category)
 	if (data) return data
 }
 
