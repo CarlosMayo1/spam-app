@@ -1,9 +1,112 @@
 // react
-import { Fragment } from 'react'
+import { Fragment, useState, useEffect } from 'react'
+//react redux
+import { useSelector, useDispatch } from 'react-redux'
+// react select
+import Select from 'react-select'
 // headlessui
 import { Dialog, Transition } from '@headlessui/react'
+// react hook form
+import { useForm, Controller } from 'react-hook-form'
+// utils
+import { searchMessage, insertNewMessage } from '../../../utils/message'
+import { fetchCategories } from '../../../utils/category'
+// store
+import { categorySliceAction } from '../../../store/categoryStore/category-redux'
+// components
+import SuccessAlert from '../../UI/Alert/SuccessAlert/SuccessAlert'
+import ErrorAlert from '../../UI/Alert/ErrorAlert/ErrorAlert'
+import LoadingSpinner from '../../UI/LoadingSpinner/LoadingSpinner'
 
 const AddMessageModal = ({ isOpen, closeModal }) => {
+	const [alertType, setAlertType] = useState(null)
+	const [showLoading, setShowLoading] = useState(false)
+	const categories = useSelector(
+		state => state.categoryReducer.categoriesForReactSelect,
+	)
+
+	const dispatch = useDispatch()
+	const {
+		control,
+		register,
+		handleSubmit,
+		reset,
+		setError,
+		formState: { errors },
+	} = useForm()
+
+	const onSubmitFormHandler = handleSubmit(data => {
+		setShowLoading(true)
+		const newMessage = {
+			message: data.message,
+			source: data.source,
+			category_id: data.category.value,
+			status: 1,
+		}
+
+		searchMessage(newMessage.message)
+			.then(response => {
+				if (response.length > 0) {
+					setError('message', {
+						type: 'custom',
+						message: 'This message has already added!',
+					})
+					console.log(response)
+					return
+				} else {
+					insertNewMessage(newMessage).then(response => {
+						if (response === undefined) {
+							setAlertType('success')
+						} else {
+							setAlertType('error')
+						}
+						reset()
+						console.log(response)
+					})
+				}
+			})
+			.finally(() => {
+				setShowLoading(false)
+			})
+	})
+
+	useEffect(() => {
+		fetchCategories().then(response => {
+			const categoriesArr = []
+			response.map(category =>
+				categoriesArr.push({
+					value: category.category_id,
+					label: category.name,
+				}),
+			)
+			const sortedArr = categoriesArr.sort((a, b) => {
+				if (a.label < b.label) {
+					return -1
+				}
+				if (a.label > b.label) {
+					return 1
+				}
+				return 0
+			})
+			dispatch(categorySliceAction.addCategoriesForReactSelect(sortedArr))
+		})
+	}, [])
+
+	useEffect(() => {
+		if (alertType === 'success') {
+			setTimeout(() => {
+				setAlertType(null)
+			}, 2000)
+		}
+	}, [alertType])
+
+	const showAlert =
+		alertType === 'success' ? (
+			<SuccessAlert message='New message added successfully' />
+		) : (
+			<ErrorAlert message='Sorry! There was an error' />
+		)
+
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog as='div' className='relative z-10' onClose={closeModal}>
@@ -35,10 +138,12 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 									as='h3'
 									className='text-lg font-medium leading-6 text-gray-900'
 								>
-									Payment successful
+									Add New Message
 								</Dialog.Title>
 								<div className='mt-2'>
-									<form>
+									{/* Alert message */}
+									{alertType && showAlert}
+									<form onSubmit={onSubmitFormHandler}>
 										<div className='mb-2'>
 											<label
 												htmlFor='message'
@@ -49,9 +154,23 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 											<textarea
 												id='message'
 												rows='4'
-												className='outline-none block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:text-white'
+												className={`outline-none bg-gray-50 border ${
+													errors.message &&
+													'border-red-500 focus:border-red-500'
+												} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
 												placeholder='Add a message here!'
+												{...register('message', {
+													required: {
+														value: true,
+														message: 'This field cannot be empty!',
+													},
+												})}
 											></textarea>
+											<div>
+												<p className='flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1'>
+													{errors.message && errors.message.message}
+												</p>
+											</div>
 										</div>
 										<div className='mb-5'>
 											<label
@@ -63,20 +182,68 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 											<input
 												type='text'
 												id='base-input'
-												className='outline-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+												className='outline-none border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+												{...register('source')}
 											/>
 										</div>
+										<div className='mb-5'>
+											<label
+												htmlFor='base-input'
+												className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+											>
+												Category
+											</label>
+											<Controller
+												name='category'
+												control={control}
+												rules={{
+													value: true,
+													required: 'This field cannot be empty!',
+												}}
+												defaultValue=''
+												render={({ field }) => (
+													<Select
+														{...field}
+														styles={{
+															menuPortal: base => ({
+																...base,
+																zIndex: 9999,
+																fontSize: '0.875rem',
+																lineHeight: '1.25rem',
+															}),
+															control: (baseStyles, state) => ({
+																...baseStyles,
+																borderColor: errors.category && 'red',
+																outline: 'none',
+																'&:hover': 'none',
+																'&:focus': 'none',
+																boxShadow: 'red',
+																fontSize: '0.875rem',
+																lineHeight: '1.25rem',
+															}),
+														}}
+														maxMenuHeight={200}
+														menuPortalTarget={document.body}
+														options={categories}
+													/>
+												)}
+											/>
+											<div>
+												<p className='flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1'>
+													{errors.category && errors.category.message}
+												</p>
+											</div>
+										</div>
+										<div className='mt-4 text-center'>
+											<button
+												type='submit'
+												className='inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
+												disabled={showLoading}
+											>
+												{showLoading ? <LoadingSpinner /> : 'Add'}
+											</button>
+										</div>
 									</form>
-								</div>
-
-								<div className='mt-4'>
-									<button
-										type='button'
-										className='inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
-										onClick={closeModal}
-									>
-										Got it, thanks!
-									</button>
 								</div>
 							</Dialog.Panel>
 						</Transition.Child>

@@ -1,10 +1,12 @@
+// components
 import Message from './components/Message/Message'
+import Category from './components/Category/Category'
 function App() {
 	return (
-		<>
-			<h1>Main title of the app</h1>
+		<div>
 			<Message />
-		</>
+			<Category />
+		</div>
 	)
 }
 

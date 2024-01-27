@@ -1,24 +1,68 @@
 // react
-import { Fragment } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 // react-hook-form
 import { useForm } from 'react-hook-form'
 // headlessui
 import { Dialog, Transition } from '@headlessui/react'
 // utils
-import { insertNewCategory } from '../../../utils/category'
+import { insertNewCategory, searchCategory } from '../../../utils/category'
+// components
+import SuccessAlert from '../../UI/Alert/SuccessAlert/SuccessAlert'
+import ErrorAlert from '../../UI/Alert/ErrorAlert/ErrorAlert'
 
 const AddCategoryModal = ({ isOpen, closeModal }) => {
-	const { register, handleSubmit } = useForm()
+	const [alertType, setAlertType] = useState(null)
+	const {
+		register,
+		handleSubmit,
+		reset,
+		setError,
+		formState: { errors },
+	} = useForm()
 
 	const onSubmitHandleForm = handleSubmit(data => {
 		const newCategory = {
 			name: data.category,
 			status: 1,
 		}
-		insertNewCategory(newCategory).then(response => {
-			console.log(response)
+
+		// ⚠️validate in order to not repeat information
+		searchCategory(newCategory.name).then(response => {
+			if (response.length > 0) {
+				setError('category', {
+					type: 'custom',
+					message: 'This category has already been added!',
+				})
+				return
+			}
+
+			insertNewCategory(newCategory).then(response => {
+				if (response === undefined) {
+					setAlertType('success')
+				} else {
+					setAlertType('error')
+				}
+			})
+
+			setTimeout(() => {
+				reset()
+				closeModal()
+			}, 2000)
 		})
 	})
+
+	const showAlert =
+		alertType === 'success' ? (
+			<SuccessAlert message='New category added successfully' />
+		) : (
+			<ErrorAlert message='Sorry! There was an error' />
+		)
+
+	useEffect(() => {
+		setTimeout(() => {
+			setAlertType(null)
+		}, 2000)
+	}, [alertType])
 
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
@@ -34,7 +78,6 @@ const AddCategoryModal = ({ isOpen, closeModal }) => {
 				>
 					<div className='fixed inset-0 bg-black/25' />
 				</Transition.Child>
-
 				<div className='fixed inset-0 overflow-y-auto'>
 					<div className='flex min-h-full items-center justify-center p-4 text-center'>
 						<Transition.Child
@@ -53,27 +96,42 @@ const AddCategoryModal = ({ isOpen, closeModal }) => {
 								>
 									Add New Message Category
 								</Dialog.Title>
+
 								<div className='mt-2'>
+									{/* Alert message */}
+									{alertType && showAlert}
 									<form onSubmit={onSubmitHandleForm}>
 										<div className='mb-5'>
 											<label
 												htmlFor='base-input'
-												className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+												className='block mb-2 text-sm font-medium text-gray-900 dark:text-white ml-1'
 											>
 												Category
 											</label>
 											<input
 												type='text'
 												id='base-input'
-												className='outline-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-												{...register('category')}
+												className={`outline-none bg-gray-50 border ${
+													errors.category &&
+													'border-red-500 focus:border-red-500'
+												} border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
+												{...register('category', {
+													required: {
+														value: true,
+														message: 'This field cannot be empty',
+													},
+												})}
 											/>
+											<div>
+												<p className='flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1'>
+													{errors.category && errors.category.message}
+												</p>
+											</div>
 										</div>
 										<div className='mt-4 text-center'>
 											<button
 												type='submit'
 												className='inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
-												// onClick={closeModal}
 											>
 												Add
 											</button>
