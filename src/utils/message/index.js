@@ -8,10 +8,10 @@ export const searchMessage = async message => {
 	if (data) return data
 }
 
-export const fetchMessage = async () => {
-	const { data, error } = supabase
+export const fetchMessages = async () => {
+	const { data, error } = await supabase
 		.from('message')
-		.select('message_id, message, category_id, source')
+		.select('message_id, message, category(category_id, name), source')
 	if (data) return data
 	if (error) return error
 }
