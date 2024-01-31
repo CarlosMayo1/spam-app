@@ -1,13 +1,38 @@
+// react
+import { useState } from 'react'
 // react redux
 import { useSelector } from 'react-redux'
 // tabler icons
 import { IconEdit, IconTrash } from '@tabler/icons-react'
+// components
+import AddMessageModal from '../AddMessageModal/AddMessageModal'
 
 const MessageTable = () => {
 	const listOfMessages = useSelector(state => state.messageReducer.messages)
+	const [openNewMessageModal, setOpenNewMessageModal] = useState(false)
+
+	const openNewMessageModalHandler = () => {
+		setOpenNewMessageModal(true)
+	}
+
+	const closeNewMessageModalHandler = () => {
+		setOpenNewMessageModal(false)
+	}
+
 	return (
 		<div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
-			<div className='pb-4 bg-white dark:bg-gray-900'>
+			<div className='flex justify-between pb-4 bg-white dark:bg-gray-900'>
+				<div>
+					<button className='bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded'>
+						Send
+					</button>
+					<button
+						className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-3'
+						onClick={openNewMessageModalHandler}
+					>
+						Add new message
+					</button>
+				</div>
 				<label htmlFor='table-search' className='sr-only'>
 					Search
 				</label>
@@ -110,6 +135,13 @@ const MessageTable = () => {
 					))}
 				</tbody>
 			</table>
+			{/* Headless UI */}
+			{openNewMessageModal && (
+				<AddMessageModal
+					isOpen={openNewMessageModal}
+					closeModal={closeNewMessageModalHandler}
+				/>
+			)}
 		</div>
 	)
 }
