@@ -6,6 +6,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { fetchMessages } from '../../utils/message'
 // store
 import { messageActions } from '../../store/messageStore/message-redux'
+// redux thunk
+import { fncFetchMessages } from '../../store/messageStore/message-thunk'
 
 // components
 import Card from '../UI/Card/Card'
@@ -17,20 +19,7 @@ const Message = () => {
 	const dispatch = useDispatch()
 
 	useEffect(() => {
-		fetchMessages().then(response => {
-			console.log(response)
-			const sortedArr = response.sort((a, b) => {
-				if (a.message < b.message) {
-					return -1
-				}
-				if (a.message > b.message) {
-					return 1
-				}
-				return 0
-			})
-
-			dispatch(messageActions.fetchMessages(sortedArr))
-		})
+		dispatch(fncFetchMessages())
 	}, [])
 
 	return (

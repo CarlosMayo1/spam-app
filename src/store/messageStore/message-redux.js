@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
 	messages: [],
+	editMessage: {},
 }
 
 const messageSlice = createSlice({
@@ -10,6 +11,12 @@ const messageSlice = createSlice({
 	reducers: {
 		fetchMessages(state, action) {
 			state.messages = action.payload
+		},
+		editMessage(state, action) {
+			state.editMessage = action.payload
+		},
+		resetEditMessage(state) {
+			state.editMessage = {}
 		},
 	},
 })

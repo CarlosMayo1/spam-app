@@ -21,3 +21,17 @@ export const insertNewMessage = async message => {
 	if (data) return data
 	if (error) return error
 }
+
+export const updateMessage = async message => {
+	const { data, error } = await supabase
+		.from('message')
+		.update(message)
+		.eq('message_id', message.message_id)
+	if (data) return data
+	if (error) return error
+}
+
+export const deleteMessage = async id => {
+	const { error } = await supabase.from('message').delete().eq('message_id', id)
+	return error
+}

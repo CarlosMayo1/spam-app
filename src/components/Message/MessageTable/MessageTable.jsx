@@ -1,22 +1,41 @@
 // react
 import { useState } from 'react'
 // react redux
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 // tabler icons
 import { IconEdit, IconTrash } from '@tabler/icons-react'
+// utils
+import { messageActions } from '../../../store/messageStore/message-redux'
 // components
 import AddMessageModal from '../AddMessageModal/AddMessageModal'
+// utils
+import { deleteMessage } from '../../../utils/message'
 
 const MessageTable = () => {
 	const listOfMessages = useSelector(state => state.messageReducer.messages)
 	const [openNewMessageModal, setOpenNewMessageModal] = useState(false)
+	const dispatch = useDispatch()
 
 	const openNewMessageModalHandler = () => {
 		setOpenNewMessageModal(true)
 	}
 
 	const closeNewMessageModalHandler = () => {
+		dispatch(messageActions.resetEditMessage())
 		setOpenNewMessageModal(false)
+	}
+
+	const onEditMessageHandler = message => {
+		console.log(message)
+		dispatch(messageActions.editMessage(message))
+		setOpenNewMessageModal(true)
+	}
+
+	const onDeleteMessageHandler = id => {
+		console.log(`Deleting the message with the following id: ${id}`)
+		deleteMessage(id).then(response => {
+			console.log(response)
+		})
 	}
 
 	return (
@@ -124,10 +143,16 @@ const MessageTable = () => {
 								</span>
 							</td>
 							<td className='flex items-center px-6 py-4 '>
-								<button className='font-medium text-blue-500 dark:text-blue-500 hover:text-blue-700'>
+								<button
+									className='font-medium text-blue-500 dark:text-blue-500 hover:text-blue-700'
+									onClick={() => onEditMessageHandler(message)}
+								>
 									<IconEdit />
 								</button>
-								<button className='font-medium text-red-500 dark:text-red-500 hover:text-red-700 ms-3'>
+								<button
+									className='font-medium text-red-500 dark:text-red-500 hover:text-red-700 ms-3'
+									onClick={() => onDeleteMessageHandler(message.message_id)}
+								>
 									<IconTrash />
 								</button>
 							</td>

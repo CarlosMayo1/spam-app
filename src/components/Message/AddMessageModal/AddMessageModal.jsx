@@ -9,7 +9,13 @@ import { Dialog, Transition } from '@headlessui/react'
 // react hook form
 import { useForm, Controller } from 'react-hook-form'
 // utils
-import { searchMessage, insertNewMessage } from '../../../utils/message'
+import {
+	searchMessage,
+	insertNewMessage,
+	updateMessage,
+} from '../../../utils/message'
+// redux thunk
+import { fncFetchMessages } from '../../../store/messageStore/message-thunk'
 import { fetchCategories } from '../../../utils/category'
 // store
 import { categorySliceAction } from '../../../store/categoryStore/category-redux'
@@ -21,10 +27,10 @@ import LoadingSpinner from '../../UI/LoadingSpinner/LoadingSpinner'
 const AddMessageModal = ({ isOpen, closeModal }) => {
 	const [alertType, setAlertType] = useState(null)
 	const [showLoading, setShowLoading] = useState(false)
+	const editMessage = useSelector(state => state.messageReducer.editMessage)
 	const categories = useSelector(
 		state => state.categoryReducer.categoriesForReactSelect,
 	)
-
 	const dispatch = useDispatch()
 	const {
 		control,
@@ -33,7 +39,19 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 		reset,
 		setError,
 		formState: { errors },
-	} = useForm()
+	} = useForm({
+		defaultValues: {
+			message: Object.keys(editMessage).length === 0 ? '' : editMessage.message,
+			source: Object.keys(editMessage).length === 0 ? '' : editMessage.source,
+			category:
+				Object.keys(editMessage).length === 0
+					? ''
+					: {
+							label: editMessage.category.name,
+							value: editMessage.category.category_id,
+					  },
+		},
+	})
 
 	const onSubmitFormHandler = handleSubmit(data => {
 		setShowLoading(true)
@@ -44,30 +62,52 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 			status: 1,
 		}
 
-		searchMessage(newMessage.message)
-			.then(response => {
-				if (response.length > 0) {
-					setError('message', {
-						type: 'custom',
-						message: 'This message has already added!',
-					})
-					console.log(response)
-					return
-				} else {
-					insertNewMessage(newMessage).then(response => {
-						if (response === undefined) {
-							setAlertType('success')
-							reset()
-						} else {
-							setAlertType('error')
-						}
+		// if the edt button was clicked
+		if (Object.keys(editMessage).length > 0) {
+			// adding the uuid to be edited
+			newMessage['message_id'] = editMessage.message_id
+
+			updateMessage(newMessage)
+				.then(response => {
+					if (response === undefined) {
+						setAlertType('success')
+					}
+				})
+				.finally(() => {
+					dispatch(fncFetchMessages())
+					setShowLoading(false)
+					setTimeout(() => {
+						closeModal()
+					}, 2000)
+				})
+			console.log('editing this messsage')
+		} else {
+			searchMessage(newMessage.message)
+				.then(response => {
+					if (response.length > 0) {
+						setError('message', {
+							type: 'custom',
+							message: 'This message has already added!',
+						})
 						console.log(response)
-					})
-				}
-			})
-			.finally(() => {
-				setShowLoading(false)
-			})
+						return
+					} else {
+						insertNewMessage(newMessage).then(response => {
+							if (response === undefined) {
+								setAlertType('success')
+								reset()
+							} else {
+								setAlertType('error')
+							}
+							console.log(response)
+						})
+					}
+				})
+				.finally(() => {
+					dispatch(fncFetchMessages())
+					setShowLoading(false)
+				})
+		}
 	})
 
 	useEffect(() => {
@@ -183,6 +223,7 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 												type='text'
 												id='base-input'
 												className='outline-none border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+												placeholder='Source'
 												{...register('source')}
 											/>
 										</div>
