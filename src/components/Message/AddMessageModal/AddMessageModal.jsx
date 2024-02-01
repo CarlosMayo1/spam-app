@@ -92,19 +92,23 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 						console.log(response)
 						return
 					} else {
-						insertNewMessage(newMessage).then(response => {
-							if (response === undefined) {
-								setAlertType('success')
-								reset()
-							} else {
-								setAlertType('error')
-							}
-							console.log(response)
-						})
+						insertNewMessage(newMessage)
+							.then(response => {
+								if (response === undefined) {
+									setAlertType('success')
+									reset()
+								} else {
+									setAlertType('error')
+								}
+								console.log(response)
+							})
+							.finally(() => {
+								setShowLoading(false)
+								dispatch(fncFetchMessages())
+							})
 					}
 				})
 				.finally(() => {
-					dispatch(fncFetchMessages())
 					setShowLoading(false)
 				})
 		}

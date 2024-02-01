@@ -6,14 +6,16 @@ import { useSelector, useDispatch } from 'react-redux'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 // utils
 import { messageActions } from '../../../store/messageStore/message-redux'
-// components
-import AddMessageModal from '../AddMessageModal/AddMessageModal'
 // utils
 import { deleteMessage } from '../../../utils/message'
+// components
+import AddMessageModal from '../AddMessageModal/AddMessageModal'
+import DeleteModal from '../../UI/DeleteModal/DeleteModal'
 
 const MessageTable = () => {
 	const listOfMessages = useSelector(state => state.messageReducer.messages)
 	const [openNewMessageModal, setOpenNewMessageModal] = useState(false)
+	const [openDeleteModal, setOpenDeleteModal] = useState(false)
 	const dispatch = useDispatch()
 
 	const openNewMessageModalHandler = () => {
@@ -31,11 +33,16 @@ const MessageTable = () => {
 		setOpenNewMessageModal(true)
 	}
 
+	const closeDeleteModalHandler = () => {
+		setOpenDeleteModal(false)
+	}
+
 	const onDeleteMessageHandler = id => {
 		console.log(`Deleting the message with the following id: ${id}`)
-		deleteMessage(id).then(response => {
-			console.log(response)
-		})
+		setOpenDeleteModal(true)
+		// deleteMessage(id).then(response => {
+		// 	console.log(response)
+		// })
 	}
 
 	return (
@@ -142,19 +149,21 @@ const MessageTable = () => {
 									{message.category.name}
 								</span>
 							</td>
-							<td className='flex items-center px-6 py-4 '>
-								<button
-									className='font-medium text-blue-500 dark:text-blue-500 hover:text-blue-700'
-									onClick={() => onEditMessageHandler(message)}
-								>
-									<IconEdit />
-								</button>
-								<button
-									className='font-medium text-red-500 dark:text-red-500 hover:text-red-700 ms-3'
-									onClick={() => onDeleteMessageHandler(message.message_id)}
-								>
-									<IconTrash />
-								</button>
+							<td className='px-6 py-4 '>
+								<div className='flex items-center '>
+									<button
+										className='font-medium text-blue-500 dark:text-blue-500 hover:text-blue-700'
+										onClick={() => onEditMessageHandler(message)}
+									>
+										<IconEdit />
+									</button>
+									<button
+										className='font-medium text-red-500 dark:text-red-500 hover:text-red-700 ms-3'
+										onClick={() => onDeleteMessageHandler(message.message_id)}
+									>
+										<IconTrash />
+									</button>
+								</div>
 							</td>
 						</tr>
 					))}
@@ -165,6 +174,12 @@ const MessageTable = () => {
 				<AddMessageModal
 					isOpen={openNewMessageModal}
 					closeModal={closeNewMessageModalHandler}
+				/>
+			)}
+			{openDeleteModal && (
+				<DeleteModal
+					isOpen={openDeleteModal}
+					closeModal={closeDeleteModalHandler}
 				/>
 			)}
 		</div>
