@@ -1,24 +1,35 @@
 // react
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // react redux
 import { useSelector, useDispatch } from 'react-redux'
+import Select from 'react-select'
 // react-thunk
 import { fncFetchMessages } from '../../../store/messageStore/message-thunk'
+import { fncFetchCategoriesForSelect } from '../../../store/categoryStore/category-thunk'
 // tabler icons
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 // utils
 import { messageActions } from '../../../store/messageStore/message-redux'
 // utils
-import { deleteMessage } from '../../../utils/message'
+import { deleteMessage, searchBarMessage } from '../../../utils/message'
 // components
 import AddMessageModal from '../AddMessageModal/AddMessageModal'
 import DeleteModal from '../../UI/DeleteModal/DeleteModal'
 
 const MessageTable = () => {
 	const listOfMessages = useSelector(state => state.messageReducer.messages)
+	const listOfCategories = useSelector(
+		state => state.categoryReducer.categoriesForReactSelect,
+	)
 	const [openNewMessageModal, setOpenNewMessageModal] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState(false)
+	const [query, setQuery] = useState('')
 	const dispatch = useDispatch()
+
+	const onSearchInputHandler = e => {
+		console.log(e.target.value)
+		searchBarMessage(e.target.value).then(response => console.log(response))
+	}
 
 	const openNewMessageModalHandler = () => {
 		setOpenNewMessageModal(true)
@@ -71,6 +82,10 @@ const MessageTable = () => {
 			})
 	}
 
+	useEffect(() => {
+		dispatch(fncFetchCategoriesForSelect())
+	}, [])
+
 	return (
 		<div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
 			<div className='flex justify-between pb-4 bg-white dark:bg-gray-900'>
@@ -84,6 +99,9 @@ const MessageTable = () => {
 					>
 						Add new message
 					</button>
+				</div>
+				<div>
+					<Select options={listOfCategories} />
 				</div>
 				<label htmlFor='table-search' className='sr-only'>
 					Search
@@ -111,6 +129,7 @@ const MessageTable = () => {
 						id='table-search'
 						className='block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
 						placeholder='Search for items'
+						onChange={onSearchInputHandler}
 					/>
 				</div>
 			</div>

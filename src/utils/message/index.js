@@ -39,8 +39,8 @@ export const deleteMessage = async id => {
 export const searchBarMessage = async query => {
 	const { data, error } = await supabase
 		.from('message')
-		.select()
-		.textSearch('message', query)
+		.select('message_id, message, category(category_id, name), source')
+		.ilike('message', `%${query}%`)
 	if (data) return data
 	if (error) return error
 }

@@ -16,9 +16,6 @@ import {
 } from '../../../utils/message'
 // redux thunk
 import { fncFetchMessages } from '../../../store/messageStore/message-thunk'
-import { fetchCategories } from '../../../utils/category'
-// store
-import { categorySliceAction } from '../../../store/categoryStore/category-redux'
 // components
 import SuccessAlert from '../../UI/Alert/SuccessAlert/SuccessAlert'
 import ErrorAlert from '../../UI/Alert/ErrorAlert/ErrorAlert'
@@ -113,28 +110,6 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 				})
 		}
 	})
-
-	useEffect(() => {
-		fetchCategories().then(response => {
-			const categoriesArr = []
-			response.map(category =>
-				categoriesArr.push({
-					value: category.category_id,
-					label: category.name,
-				}),
-			)
-			const sortedArr = categoriesArr.sort((a, b) => {
-				if (a.label < b.label) {
-					return -1
-				}
-				if (a.label > b.label) {
-					return 1
-				}
-				return 0
-			})
-			dispatch(categorySliceAction.addCategoriesForReactSelect(sortedArr))
-		})
-	}, [])
 
 	useEffect(() => {
 		if (alertType === 'success') {
