@@ -3,6 +3,11 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
 	messages: [],
 	editMessage: {},
+	deleteModal: {
+		type: '',
+		title: '',
+		message: '',
+	},
 }
 
 const messageSlice = createSlice({
@@ -17,6 +22,9 @@ const messageSlice = createSlice({
 		},
 		resetEditMessage(state) {
 			state.editMessage = {}
+		},
+		deleteModal(state, action) {
+			state.deleteModal = action.payload
 		},
 	},
 })

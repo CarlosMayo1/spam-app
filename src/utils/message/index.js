@@ -35,3 +35,12 @@ export const deleteMessage = async id => {
 	const { error } = await supabase.from('message').delete().eq('message_id', id)
 	return error
 }
+
+export const searchBarMessage = async query => {
+	const { data, error } = await supabase
+		.from('message')
+		.select()
+		.textSearch('message', query)
+	if (data) return data
+	if (error) return error
+}

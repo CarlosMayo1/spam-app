@@ -2,6 +2,8 @@
 import { useState } from 'react'
 // react redux
 import { useSelector, useDispatch } from 'react-redux'
+// react-thunk
+import { fncFetchMessages } from '../../../store/messageStore/message-thunk'
 // tabler icons
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 // utils
@@ -39,10 +41,34 @@ const MessageTable = () => {
 
 	const onDeleteMessageHandler = id => {
 		console.log(`Deleting the message with the following id: ${id}`)
-		setOpenDeleteModal(true)
-		// deleteMessage(id).then(response => {
-		// 	console.log(response)
-		// })
+		deleteMessage(id)
+			.then(response => {
+				setOpenDeleteModal(true)
+				console.log(response)
+				if (response === null) {
+					dispatch(
+						messageActions.deleteModal({
+							title: 'Delete message',
+							type: 'success',
+							message: 'Message deleted successfully!',
+						}),
+					)
+					setTimeout(() => {
+						setOpenDeleteModal(false)
+					}, 2000)
+				} else {
+					dispatch(
+						messageActions.deleteModal({
+							type: 'error',
+							title: 'Error',
+							message: "Sorry! The message wasn't deleted.",
+						}),
+					)
+				}
+			})
+			.finally(() => {
+				dispatch(fncFetchMessages())
+			})
 	}
 
 	return (

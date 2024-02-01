@@ -1,11 +1,22 @@
-// headles-ui
-import { Dialog, Transition } from '@headlessui/react'
 // react
 import { Fragment } from 'react'
+// react redux
+import { useSelector, useDispatch } from 'react-redux'
+// headles-ui
+import { Dialog, Transition } from '@headlessui/react'
 // tabler-icon
-import { IconCircleCheck } from '@tabler/icons-react'
+import { IconCircleCheck, IconBug } from '@tabler/icons-react'
 
 const DeleteModal = ({ isOpen, closeModal }) => {
+	const deleteModal = useSelector(state => state.messageReducer.deleteModal)
+
+	const modalIcon =
+		deleteModal.type === 'success' ? (
+			<IconCircleCheck className='text-green-500' size={50} strokeWidth={1.5} />
+		) : (
+			<IconBug className='text-red-500' size={50} strokeWidth={1.5} />
+		)
+
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog as='div' className='relative z-10' onClose={closeModal}>
@@ -37,22 +48,24 @@ const DeleteModal = ({ isOpen, closeModal }) => {
 									as='h3'
 									className='flex justify-center text-lg font-medium leading-6 text-gray-900'
 								>
-									<IconCircleCheck size={50} strokeWidth={1.5} />
+									{modalIcon}
 								</Dialog.Title>
+								<h4 className='text-center font-medium text-xl'>
+									{deleteModal.title}
+								</h4>
 								<div className='mt-2'>
-									<p className='text-sm text-gray-500'>
-										Your payment has been successfully submitted. We’ve sent you
-										an email with all of the details of your order.
+									<p className='text-normal text-center text-gray-500'>
+										{deleteModal.message}
 									</p>
 								</div>
 
-								<div className='mt-4'>
+								<div className='mt-4 text-center'>
 									<button
 										type='button'
-										className='inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
+										className='inline-flex justify-center rounded-md border border-transparent bg-gray-200 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2'
 										onClick={closeModal}
 									>
-										Got it, thanks!
+										Close
 									</button>
 								</div>
 							</Dialog.Panel>
