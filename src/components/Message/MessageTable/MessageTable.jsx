@@ -27,6 +27,7 @@ const MessageTable = () => {
 	const dispatch = useDispatch()
 
 	const onSearchInputHandler = e => {
+		// ⚠️ add a buffer
 		console.log(e.target.value)
 		searchBarMessage(e.target.value).then(response => console.log(response))
 	}
@@ -88,20 +89,17 @@ const MessageTable = () => {
 
 	return (
 		<div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
-			<div className='flex justify-between pb-4 bg-white dark:bg-gray-900'>
-				<div>
-					<button className='bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded'>
+			<div className='flex flex-col md:flex-row justify-between pb-2 bg-white dark:bg-gray-900 px-4'>
+				<div className='flex flex-col mb-2 md:flex-row md:flex md:justify-start'>
+					<button className='mb-2 md:mb-0 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded'>
 						Send
 					</button>
 					<button
-						className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-3'
+						className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded  ml-0 md:ml-3'
 						onClick={openNewMessageModalHandler}
 					>
 						Add new message
 					</button>
-				</div>
-				<div>
-					<Select options={listOfCategories} />
 				</div>
 				<label htmlFor='table-search' className='sr-only'>
 					Search
@@ -127,10 +125,42 @@ const MessageTable = () => {
 					<input
 						type='text'
 						id='table-search'
-						className='block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+						className='w-full block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg md:w-80 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 outline-none'
 						placeholder='Search for items'
 						onChange={onSearchInputHandler}
 					/>
+				</div>
+			</div>
+			<div className='w-full flex flex-col md:flex-row justify-between px-4 mb-4'>
+				<div className='flex flex-col items-start md:flex-row md:items-center'>
+					<label
+						htmlFor='categories'
+						className='block mr-0 md:mr-2 text-sm font-medium text-gray-900 dark:text-white'
+					>
+						filter by
+					</label>
+					<Select
+						className='w-full mb-2 md:mb-0 md:w-64'
+						options={listOfCategories}
+						defaultValue=''
+					/>
+				</div>
+				<div className='flex flex-col items-start md:flex-row md:items-center'>
+					<label
+						htmlFor='records'
+						className='block mr-0 md:mr-2 text-sm font-medium text-gray-900 dark:text-white'
+					>
+						Records per page
+					</label>
+					<select
+						id='records'
+						className='w-full md:w-16 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+					>
+						<option defaultValue={10}>10</option>
+						<option value='15'>15</option>
+						<option value='20'>20</option>
+						<option value='25'>25</option>
+					</select>
 				</div>
 			</div>
 			<table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400'>
@@ -148,16 +178,16 @@ const MessageTable = () => {
 								</label>
 							</div>
 						</th>
-						<th scope='col' className='px-6 py-3'>
+						<th scope='col' className='px-0 py-0 lg:px-6 md:py-3'>
 							Message
 						</th>
-						<th scope='col' className='px-6 py-3'>
+						<th scope='col' className='px-0 py-0 lg:px-6 md:py-3'>
 							Source
 						</th>
-						<th scope='col' className='px-6 py-3'>
+						<th scope='col' className='px-0 py-0 lg:px-6 md:py-3'>
 							Category
 						</th>
-						<th scope='col' className='px-6 py-3'>
+						<th scope='col' className='px-0 py-0 lg:px-6 md:py-3'>
 							Action
 						</th>
 					</tr>
@@ -182,19 +212,19 @@ const MessageTable = () => {
 							</td>
 							<th
 								scope='row'
-								className='px-6 py-4 font-medium text-gray-900 whitespace-pre-line dark:text-white'
+								className='px-0 py-2 lg:px-6 lg:py-4 text-xs lg:text-sm  font-medium text-gray-900 whitespace-pre-line dark:text-white'
 							>
 								{message.message}
 							</th>
-							<td className='px-6 py-4 md:whitespace-nowrap font-semibold'>
+							<td className='px-2 py-0 lg:px-6 lg:py-4 lg:whitespace-nowrap text-xs lg:text-sm font-semibold'>
 								{message.source}
 							</td>
-							<td className='px-6 py-4 md:whitespace-nowrap'>
-								<span className='bg-gray-200 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300'>
+							<td className='px-2 py-0 lg:px-6 lg:py-4 lg:whitespace-nowrap'>
+								<span className='bg-gray-200 text-gray-800 text-xs lg:text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300'>
 									{message.category.name}
 								</span>
 							</td>
-							<td className='px-6 py-4 '>
+							<td className='px-2 py-0 lg:px-6 lg:py-4'>
 								<div className='flex items-center '>
 									<button
 										className='font-medium text-blue-500 dark:text-blue-500 hover:text-blue-700'
@@ -203,7 +233,7 @@ const MessageTable = () => {
 										<IconEdit />
 									</button>
 									<button
-										className='font-medium text-red-500 dark:text-red-500 hover:text-red-700 ms-3'
+										className='font-medium text-red-500 dark:text-red-500 hover:text-red-700 ms-1.5 lg:ms-3'
 										onClick={() => onDeleteMessageHandler(message.message_id)}
 									>
 										<IconTrash />
