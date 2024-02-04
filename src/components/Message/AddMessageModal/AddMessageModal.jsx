@@ -28,6 +28,7 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 	const categories = useSelector(
 		state => state.categoryReducer.categoriesForReactSelect,
 	)
+	const filter = useSelector(state => state.messageReducer.filter)
 	const dispatch = useDispatch()
 	const {
 		control,
@@ -71,7 +72,7 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 					}
 				})
 				.finally(() => {
-					dispatch(fncFetchMessages())
+					dispatch(fncFetchMessages(filter))
 					setShowLoading(false)
 					setTimeout(() => {
 						closeModal()
@@ -101,7 +102,7 @@ const AddMessageModal = ({ isOpen, closeModal }) => {
 							})
 							.finally(() => {
 								setShowLoading(false)
-								dispatch(fncFetchMessages())
+								dispatch(fncFetchMessages(filter))
 							})
 					}
 				})

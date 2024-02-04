@@ -23,7 +23,7 @@ const MessageTable = () => {
 	)
 	const [openNewMessageModal, setOpenNewMessageModal] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState(false)
-	const [query, setQuery] = useState('')
+	const filter = useSelector(state => state.messageReducer.filter)
 	const dispatch = useDispatch()
 
 	const onSearchInputHandler = e => {
@@ -79,7 +79,7 @@ const MessageTable = () => {
 				}
 			})
 			.finally(() => {
-				dispatch(fncFetchMessages())
+				dispatch(fncFetchMessages(filter))
 			})
 	}
 

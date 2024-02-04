@@ -1,11 +1,11 @@
 // utils
-import { fetchMessages } from '../../utils/message'
+import { fetchMessages, countTotalMesssage } from '../../utils/message'
 // store
 import { messageActions } from './message-redux'
 
-export const fncFetchMessages = () => {
+export const fncFetchMessages = filter => {
 	return async function fetchAllMessages(dispatch) {
-		fetchMessages().then(response => {
+		fetchMessages(filter).then(response => {
 			console.log(response)
 			const sortedArr = response.sort((a, b) => {
 				if (a.message < b.message) {
@@ -18,6 +18,15 @@ export const fncFetchMessages = () => {
 			})
 
 			dispatch(messageActions.fetchMessages(sortedArr))
+		})
+	}
+}
+
+export const fncGetCountMessages = () => {
+	return async function countAllMessages(dispatch) {
+		countTotalMesssage().then(response => {
+			console.log(response)
+			dispatch(messageActions.getTotalMessages(response))
 		})
 	}
 }

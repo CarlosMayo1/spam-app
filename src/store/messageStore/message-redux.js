@@ -8,6 +8,15 @@ const initialState = {
 		title: '',
 		message: '',
 	},
+	filter: {
+		query: '',
+		category: {
+			category: '',
+			name: '',
+		},
+		limit: '',
+	},
+	totalMessages: 0,
 }
 
 const messageSlice = createSlice({
@@ -25,6 +34,9 @@ const messageSlice = createSlice({
 		},
 		deleteModal(state, action) {
 			state.deleteModal = action.payload
+		},
+		getTotalMessages(state, action) {
+			state.totalMessages = action.payload
 		},
 	},
 })

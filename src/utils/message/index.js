@@ -8,10 +8,13 @@ export const searchMessage = async message => {
 	if (data) return data
 }
 
-export const fetchMessages = async () => {
+export const fetchMessages = async filter => {
 	const { data, error } = await supabase
 		.from('message')
-		.select('message_id, message, category(category_id, name), source')
+		.select('message_id, message, category!inner(category_id, name), source')
+		.eq(filter.category.category, filter.category.name)
+		.ilike('message', `%${filter.query}%`)
+		.limit(filter.limit)
 	if (data) return data
 	if (error) return error
 }
@@ -42,5 +45,13 @@ export const searchBarMessage = async query => {
 		.select('message_id, message, category(category_id, name), source')
 		.ilike('message', `%${query}%`)
 	if (data) return data
+	if (error) return error
+}
+
+export const countTotalMesssage = async () => {
+	const { count, error } = await supabase
+		.from('message')
+		.select('*', { count: 'exact', head: true })
+	if (count) return count
 	if (error) return error
 }

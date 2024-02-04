@@ -3,11 +3,12 @@ import { useEffect } from 'react'
 // react redux
 import { useSelector, useDispatch } from 'react-redux'
 // utils
-import { fetchMessages } from '../../utils/message'
-// store
-import { messageActions } from '../../store/messageStore/message-redux'
+import { countTotalMesssage } from '../../utils/message'
 // redux thunk
-import { fncFetchMessages } from '../../store/messageStore/message-thunk'
+import {
+	fncFetchMessages,
+	fncGetCountMessages,
+} from '../../store/messageStore/message-thunk'
 
 // components
 import Card from '../UI/Card/Card'
@@ -16,10 +17,15 @@ import LoadingSpinner from '../UI/LoadingSpinner/LoadingSpinner'
 
 const Message = () => {
 	const listOfMessages = useSelector(state => state.messageReducer.messages)
+	const filter = useSelector(state => state.messageReducer.filter)
 	const dispatch = useDispatch()
 
+	console.log(filter)
+
 	useEffect(() => {
-		dispatch(fncFetchMessages())
+		dispatch(fncFetchMessages(filter))
+		// gets the toal amount of messages for paginations purposes
+		dispatch(fncGetCountMessages())
 	}, [])
 
 	return (
