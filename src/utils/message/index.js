@@ -48,15 +48,3 @@ export const searchBarMessage = async query => {
 	if (data) return data
 	if (error) return error
 }
-
-export const countTotalMesssage = async filter => {
-	const { count, error } = await supabase
-		.from('message')
-		.select('message_id, message, category!inner(category_id, name), source', {
-			count: 'exact',
-			head: true,
-		})
-	// .eq('category.name', 'Libros')
-	if (count) return count
-	if (error) return error
-}

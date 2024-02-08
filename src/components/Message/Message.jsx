@@ -3,10 +3,7 @@ import { useEffect } from 'react'
 // react redux
 import { useSelector, useDispatch } from 'react-redux'
 // redux thunk
-import {
-	fncFetchMessages,
-	fncGetCountMessages,
-} from '../../store/messageStore/message-thunk'
+import { fncFetchMessages } from '../../store/messageStore/message-thunk'
 // components
 import Card from '../UI/Card/Card'
 import MessageTable from './MessageTable/MessageTable'
@@ -20,8 +17,6 @@ const Message = () => {
 
 	useEffect(() => {
 		dispatch(fncFetchMessages(filter))
-		// gets the toal amount of messages for paginations purposes
-		dispatch(fncGetCountMessages())
 	}, [])
 
 	return (
