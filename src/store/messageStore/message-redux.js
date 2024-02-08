@@ -14,7 +14,7 @@ const initialState = {
 			category: '',
 			name: '',
 		},
-		limit: '',
+		limit: 10,
 	},
 	totalMessages: 0,
 }
@@ -37,6 +37,9 @@ const messageSlice = createSlice({
 		},
 		getTotalMessages(state, action) {
 			state.totalMessages = action.payload
+		},
+		addFilter(state, action) {
+			state.filter = action.payload
 		},
 	},
 })

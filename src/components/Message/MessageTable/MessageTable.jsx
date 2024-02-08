@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 // react redux
 import { useSelector, useDispatch } from 'react-redux'
+// react-select
 import Select from 'react-select'
 // react-thunk
 import { fncFetchMessages } from '../../../store/messageStore/message-thunk'
@@ -21,16 +22,11 @@ const MessageTable = () => {
 	const listOfCategories = useSelector(
 		state => state.categoryReducer.categoriesForReactSelect,
 	)
+	const filter = useSelector(state => state.messageReducer.filter)
 	const [openNewMessageModal, setOpenNewMessageModal] = useState(false)
 	const [openDeleteModal, setOpenDeleteModal] = useState(false)
-	const filter = useSelector(state => state.messageReducer.filter)
+	const [query, setQuery] = useState('')
 	const dispatch = useDispatch()
-
-	const onSearchInputHandler = e => {
-		// ⚠️ add a buffer
-		console.log(e.target.value)
-		searchBarMessage(e.target.value).then(response => console.log(response))
-	}
 
 	const openNewMessageModalHandler = () => {
 		setOpenNewMessageModal(true)
@@ -83,9 +79,46 @@ const MessageTable = () => {
 			})
 	}
 
+	const onFilterByCategoryHandler = selectedOption => {
+		const filterByCategory = {
+			...filter,
+			category: {
+				name: selectedOption.label,
+				category: 'category.name',
+			},
+		}
+		dispatch(fncFetchMessages(filterByCategory))
+		dispatch(messageActions.addFilter(filterByCategory))
+	}
+
+	const onShowNumberOfRecords = e => {
+		const numberOfRecords = {
+			...filter,
+			limit: e.target.value,
+		}
+		console.log(e.target.value)
+		dispatch(fncFetchMessages(numberOfRecords))
+		dispatch(messageActions.addFilter(numberOfRecords))
+	}
+
 	useEffect(() => {
 		dispatch(fncFetchCategoriesForSelect())
 	}, [])
+
+	useEffect(() => {
+		const searchByQuery = {
+			...filter,
+			query,
+		}
+		const onSearchByInput = setTimeout(() => {
+			searchBarMessage(query).then(response => {
+				console.log(response)
+				dispatch(fncFetchMessages(searchByQuery))
+			})
+		}, 500)
+
+		return () => clearTimeout(onSearchByInput)
+	}, [query])
 
 	return (
 		<div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
@@ -127,7 +160,7 @@ const MessageTable = () => {
 						id='table-search'
 						className='w-full block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg md:w-80 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 outline-none'
 						placeholder='Search for items'
-						onChange={onSearchInputHandler}
+						onChange={e => setQuery(e.target.value)}
 					/>
 				</div>
 			</div>
@@ -140,11 +173,13 @@ const MessageTable = () => {
 						filter by
 					</label>
 					<Select
-						className='w-full mb-2 md:mb-0 md:w-64'
+						className='w-full mb-2 md:mb-0 md:w-64 mr-1.5'
 						options={listOfCategories}
 						defaultValue=''
+						onChange={onFilterByCategoryHandler}
 					/>
 				</div>
+
 				<div className='flex flex-col items-start md:flex-row md:items-center'>
 					<label
 						htmlFor='records'
@@ -155,6 +190,7 @@ const MessageTable = () => {
 					<select
 						id='records'
 						className='w-full md:w-16 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+						onChange={onShowNumberOfRecords}
 					>
 						<option defaultValue={10}>10</option>
 						<option value='15'>15</option>
@@ -244,6 +280,7 @@ const MessageTable = () => {
 					))}
 				</tbody>
 			</table>
+
 			{/* Headless UI */}
 			{openNewMessageModal && (
 				<AddMessageModal

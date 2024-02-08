@@ -7,17 +7,21 @@ export const fncFetchMessages = filter => {
 	return async function fetchAllMessages(dispatch) {
 		fetchMessages(filter).then(response => {
 			console.log(response)
-			const sortedArr = response.sort((a, b) => {
-				if (a.message < b.message) {
-					return -1
-				}
-				if (a.message > b.message) {
-					return 1
-				}
-				return 0
-			})
 
-			dispatch(messageActions.fetchMessages(sortedArr))
+			if (response !== null) {
+				const sortedArr = response.sort((a, b) => {
+					if (a.message < b.message) {
+						return -1
+					}
+					if (a.message > b.message) {
+						return 1
+					}
+					return 0
+				})
+				dispatch(messageActions.fetchMessages(sortedArr))
+			} else {
+				dispatch(messageActions.fetchMessages(response))
+			}
 		})
 	}
 }
