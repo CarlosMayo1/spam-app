@@ -28,6 +28,15 @@ const MessageTable = () => {
 	const [query, setQuery] = useState('')
 	const dispatch = useDispatch()
 
+	const onSendMessage = () => {
+		console.log('sending message')
+		const number = '+51956533328'
+		const message = 'hello world'
+		let url = `https://web.whatsapp.com/send?phone=${number}`
+		url += `&text=${encodeURI(message)}&app_absent=0`
+		window.open(url)
+	}
+
 	const openNewMessageModalHandler = () => {
 		setOpenNewMessageModal(true)
 	}
@@ -124,7 +133,10 @@ const MessageTable = () => {
 		<div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
 			<div className='flex flex-col md:flex-row justify-between pb-2 bg-white dark:bg-gray-900 px-4'>
 				<div className='flex flex-col mb-2 md:flex-row md:flex md:justify-start'>
-					<button className='mb-2 md:mb-0 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded'>
+					<button
+						className='mb-2 md:mb-0 bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded'
+						onClick={onSendMessage}
+					>
 						Send
 					</button>
 					<button

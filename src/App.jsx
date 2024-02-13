@@ -2,9 +2,8 @@
 import { Routes, Route } from 'react-router-dom'
 // components
 import Message from './components/Message/Message'
-import Category from './components/Category/Category'
-import Navbar from './components/Navbar/Navbar'
 import Wrapper from './Layout/Wrapper/Wrapper'
+import Contact from './components/Contact/Contanct'
 function App() {
 	return (
 		<div className='App'>
@@ -12,6 +11,7 @@ function App() {
 			<Routes>
 				<Route element={<Wrapper />}>
 					<Route element={<Message />} path='/' exact />
+					<Route element={<Contact />} path='/contact' />
 				</Route>
 				{/* <Route element={<Message />} path='/' />
 				<Route element={<Category />} path='/category' /> */}
